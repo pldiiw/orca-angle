@@ -31,6 +31,7 @@ jobs:
           tar --format=ustar -czf ../release/angle-windows-x64.tar.gz angle-windows-x64
           tar --format=ustar -czf ../release/angle-mac-x64.tar.gz angle-mac-x64
           tar --format=ustar -czf ../release/angle-mac-arm64.tar.gz angle-mac-arm64
+          tar --format=ustar -czf ../release/angle-linux-x64.tar.gz angle-linux-x64
 
       - uses: ncipollo/release-action@v1
         with:

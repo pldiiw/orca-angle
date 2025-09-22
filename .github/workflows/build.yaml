@@ -88,9 +88,40 @@ jobs:
 
       - name: Build Angle
         if: steps.cache-angle.outputs.cache-hit != 'true' || inputs.ignore-cache == 'true'
-        run: python build.py
+        run: python build.py --config=${{ inputs.config }}
 
       - uses: actions/upload-artifact@v4
         with:
           name: angle-mac-${{steps.angle-version.outputs.LOWERCASE_ARCH}}
+          path: build/angle.out
+
+  build-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - uses: actions/checkout@v4
+
+      - name: Angle version
+        id: angle-version
+        run: |
+          echo "ANGLE_COMMIT=$(cat commit.txt)" >> $GITHUB_OUTPUT
+
+      - name: Cache
+        id: cache-angle
+        uses: actions/cache@v3
+        if: inputs.ignore-cache != 'true'
+        with:
+          key: angle-${{ runner.os }}-${{ runner.arch }}-${{ steps.angle-version.outputs.ANGLE_COMMIT }}-${{ inputs.config }}
+          path: build/angle.out
+
+      - name: Build Angle
+        if: steps.cache-angle.outputs.cache-hit != 'true' || inputs.ignore-cache == 'true'
+        run: python3 build.py --config=${{ inputs.config }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: angle-linux-x64
           path: build/angle.out
