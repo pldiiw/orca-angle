@@ -129,7 +129,7 @@ with pushd("build"):
                 "angle_enable_null=false",
                 "angle_has_frame_capture=false"
             ]
-        else:
+        elif platform.system() == "Darwin":
             gnargs += [
                 #NOTE(martin): oddly enough, this is needed to avoid deprecation errors when _not_ using OpenGL,
                 #              because angle uses some CGL APIs to detect GPUs.
@@ -139,6 +139,14 @@ with pushd("build"):
                 "angle_enable_vulkan=false",
                 "angle_enable_null=false"
             ]
+        elif platform.system() == "Linux":
+            gnargs += [
+                "angle_enable_gl=false",
+                "angle_enable_vulkan=true",
+                "angle_enable_null=false"
+            ]
+        else:
+            assert False, "Unsupported OS"
 
         gnargString = ' '.join(gnargs)
 
@@ -198,9 +206,14 @@ with pushd("build"):
         subprocess.run(["copy", "/y",
                         "%ProgramFiles(x86)%\\Windows Kits\\10\\Redist\\D3D\\x64\\d3dcompiler_47.dll",
                         "angle.out\\lib\\"], shell=True, check=True)
-    else:
+    elif platform.system() == "Darwin":
         shutil.copy(f"angle/out/{config}/libEGL.dylib", "angle.out/lib")
         shutil.copy(f"angle/out/{config}/libGLESv2.dylib", "angle.out/lib")
+    elif platform.system() == "Linux":
+        shutil.copy(f"angle/out/{config}/libEGL.so", "angle.out/lib")
+        shutil.copy(f"angle/out/{config}/libGLESv2.so", "angle.out/lib")
+    else:
+        assert False, "Unsupported OS"
 
     # ensure line endings are consistent between windows/unix systems since they
     # will be used in the Orca project
